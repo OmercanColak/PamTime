@@ -9,9 +9,21 @@ import SwiftUI
 
 @main
 struct PamTimeApp: App {
+    @StateObject private var viewModel = TimerViewModel()
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            TabView {
+                TimerView()
+                    .tabItem {
+                        Label("Zamanlayıcı", systemImage: "timer")
+                    }
+                SettingsView()
+                    .tabItem {
+                        Label("Ayarlar", systemImage: "gear")
+                    }
+                }
+            .environmentObject(viewModel)
         }
     }
 }
