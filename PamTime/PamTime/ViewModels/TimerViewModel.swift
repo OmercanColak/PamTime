@@ -4,94 +4,91 @@
 //
 //  Created by Ömercan Çolak on 13.05.2025.
 //
+// TimerViewModel.swift
+// ViewModels folder
+
 import Foundation
-import AVFoundation
 import SwiftUI
+import AVFoundation
 
 class TimerViewModel: ObservableObject {
-    @Published var selectedWorkMinutes: Int = 25
-    @Published var shortBreakDuration: Int = 5
-    @Published var longBreakDuration: Int = 15
-
-    @Published var timeRemaining: Int = 25 * 60
-    @Published var timerIsRunning: Bool = false
-    @Published var timerConfigured: Bool = false
+    @Published var selectedMinutes: Int
+    @Published var timeRemaining: Int
+    @Published var isRunning: Bool = false
+    @Published var isConfigured: Bool = false
     @Published var flash: Bool = false
     @Published var alarmPlayed: Bool = false
-    @Published var mode: TimerMode = .work
-    @Published var pomodoroCount: Int = 0
 
-    private var player: AVAudioPlayer?
+    let mode: TimerMode
     private var timer: Timer?
+    private var player: AVAudioPlayer?
+    private var startDate: Date?
 
-    // MARK: - Public Methods
-
-    func modeLabel() -> String {
-        switch mode {
-        case .work: return "Çalışma Süresi"
-        case .shortBreak: return "Kısa Mola"
-        case .longBreak: return "Uzun Mola"
-        }
+    init(mode: TimerMode, defaultMinutes: Int) {
+        self.mode = mode
+        self.selectedMinutes = defaultMinutes
+        self.timeRemaining = defaultMinutes * 60
     }
 
-    func startTimer() {
-        switch mode {
-        case .work:
-            timeRemaining = selectedWorkMinutes * 60
-        case .shortBreak:
-            timeRemaining = shortBreakDuration * 60
-        case .longBreak:
-            timeRemaining = longBreakDuration * 60
-        }
-
-        timerIsRunning = true
-        timerConfigured = true
+    func start() {
+        timer?.invalidate()
+        timer = nil
+        
+        timeRemaining = selectedMinutes * 60
+        startDate = Date()
+        isRunning = true
+        isConfigured = true
 
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-            self.tick()
+            self.updateTime()
         }
     }
-
-    func toggleTimer() {
-        timerIsRunning.toggle()
+    private func updateTime() {
+        guard let start = startDate else { return }
+        
+        let elapsed = Int(Date().timeIntervalSince(start))
+        let total = selectedMinutes * 60
+        
+        timeRemaining = max(total - elapsed, 0)
+        
+        if timeRemaining == 0 {
+            timer?.invalidate()
+            timer = nil
+            isRunning = false
+            playSound()
+            startFlashing()
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                withAnimation {
+                    self.flash = false
+                    self.alarmPlayed = false
+                    self.isConfigured = false
+                    self.timeRemaining = self.selectedMinutes * 60
+                }
+            }
+        }
+    }
+    func toggle() {
+        isRunning.toggle()
     }
 
     func reset() {
         timer?.invalidate()
         timer = nil
-        timerIsRunning = false
-        timerConfigured = false
+        isRunning = false
+        isConfigured = false
         flash = false
         alarmPlayed = false
-        mode = .work
+        timeRemaining = selectedMinutes * 60
     }
-
-    func formatTime() -> String {
-        String(format: "%02d:%02d", timeRemaining / 60, timeRemaining % 60)
-    }
-
-    func progressValue() -> CGFloat {
-        let total: Int
-        switch mode {
-        case .work:
-            total = selectedWorkMinutes * 60
-        case .shortBreak:
-            total = shortBreakDuration * 60
-        case .longBreak:
-            total = longBreakDuration * 60
-        }
-        return 1 - CGFloat(timeRemaining) / CGFloat(total)
-    }
-
-    // MARK: - Private Helpers
 
     private func tick() {
-        guard timerIsRunning else { return }
+        guard isRunning else { return }
 
         if timeRemaining > 0 {
             timeRemaining -= 1
         } else {
-            timerIsRunning = false
+            isRunning = false
             playSound()
             startFlashing()
 
@@ -99,24 +96,24 @@ class TimerViewModel: ObservableObject {
                 withAnimation {
                     self.flash = false
                     self.alarmPlayed = false
-                    self.timerConfigured = false
-
-                    // Mod geçişi:
-                    switch self.mode {
-                    case .work:
-                        self.pomodoroCount += 1
-                        self.mode = (self.pomodoroCount % 4 == 0) ? .longBreak : .shortBreak
-                    case .shortBreak, .longBreak:
-                        self.mode = .work
-                    }
+                    self.isConfigured = false
+                    self.timeRemaining = self.selectedMinutes * 60
                 }
             }
         }
     }
 
+    func progress() -> CGFloat {
+        return 1 - CGFloat(timeRemaining) / CGFloat(selectedMinutes * 60)
+    }
+
+    func timeText() -> String {
+        String(format: "%02d:%02d", timeRemaining / 60, timeRemaining % 60)
+    }
+
     private func playSound() {
         guard let url = Bundle.main.url(forResource: "alarm", withExtension: "wav") else {
-            print("Ses dosyası bulunamadı.")
+            print("Alarm sesi bulunamadı")
             return
         }
 
