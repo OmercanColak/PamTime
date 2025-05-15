@@ -6,5 +6,7 @@
 	<string>Kullanıcıya zamanlayıcı bildirimi göndermek için izin istiyoruz.
 
 Kullanıcıya zamanlayıcı bildirimi göndermek için izin istiyoruz.</string>
+	<key>UILaunchStoryboardName</key>
+	<string>LaunchScreen</string>
 </dict>
 </plist>
