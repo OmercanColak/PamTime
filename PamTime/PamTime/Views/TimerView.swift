@@ -9,6 +9,8 @@ struct TimerView: View {
     let mode: TimerMode
     @StateObject private var viewModel: TimerViewModel
     @State private var animateIcon = false
+    @EnvironmentObject var tabRouter: TabRouter
+    @State private var showBreakChoice = false
 
     init(mode: TimerMode) {
         self.mode = mode
@@ -95,6 +97,25 @@ struct TimerView: View {
             .padding()
             .onAppear {
                 animateIcon = true
+            }
+            .onReceive(viewModel.$didFinish) { finished in
+                if finished && mode == .work {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 5 ) {
+                        showBreakChoice = true
+                    }
+                    viewModel.didFinish = false
+                }
+            }
+            .alert("Mola Zamanı!", isPresented: $showBreakChoice) {
+                Button("Kısa Mola") {
+                    tabRouter.currentTab = .shortBreak
+                }
+                Button("Uzun Mola") {
+                    tabRouter.currentTab = .longBreak
+                }
+                Button("İptal", role: .cancel) { }
+            } message: {
+                Text("Hangi Molaya Geçmek istersiniz?")
             }
         }
     }

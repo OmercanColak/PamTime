@@ -9,9 +9,12 @@ import SwiftUI
 
 @main
 struct PamTimeApp: App {
+    @StateObject var tabRouter = TabRouter()
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(tabRouter)
         }
     }
 }

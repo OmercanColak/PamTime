@@ -18,6 +18,7 @@ class TimerViewModel: ObservableObject {
     @Published var isConfigured: Bool = false
     @Published var flash: Bool = false
     @Published var alarmPlayed: Bool = false
+    @Published var didFinish: Bool = false
 
     let mode: TimerMode
     private var timer: Timer?
@@ -66,6 +67,7 @@ class TimerViewModel: ObservableObject {
                     self.timeRemaining = self.selectedMinutes * 60
                 }
             }
+            self.didFinish = true
         }
     }
     func toggle() {
