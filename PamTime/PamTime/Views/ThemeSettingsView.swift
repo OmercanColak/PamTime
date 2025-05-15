@@ -20,7 +20,21 @@ struct ThemeSettingsView: View {
                         }
                     }
                     .pickerStyle(.segmented)
+                    
+                    
+                    Button(action: {
+                        if let url = URL(string: "https://docs.google.com/document/d/1_W9QMOA9837aiskh75lZYtGU8_rUjkZju8_UgWLntr8/edit?usp=sharing") {
+                            UIApplication.shared.open(url)
+                        }
+                    }) {
+                        Text("Gizlilik Politikası")
+                            .font(.headline)
+                            .foregroundColor(.blue)
+                            .underline()
+                    }
+                    Spacer()
                 }
+                .padding()
             }
             .navigationTitle("Görünüm")
         }
