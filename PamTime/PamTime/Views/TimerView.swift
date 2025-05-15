@@ -21,6 +21,8 @@ struct TimerView: View {
             _viewModel = StateObject(wrappedValue: TimerViewModel(mode: mode, defaultMinutes: 5))
         case .longBreak:
             _viewModel = StateObject(wrappedValue: TimerViewModel(mode: mode, defaultMinutes: 15))
+        case .theme:
+                _viewModel = StateObject(wrappedValue: TimerViewModel(mode: mode, defaultMinutes: 0))
         }
     }
 

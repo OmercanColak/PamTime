@@ -7,13 +7,14 @@
 import SwiftUI
 
 enum TimerMode {
-    case work, shortBreak, longBreak
+    case work, shortBreak, longBreak, theme
     
     var label: String {
         switch self {
         case .work: return "Çalışma Süresi"
         case .shortBreak: return "Kısa Mola"
         case .longBreak: return "Uzun Mola"
+        case .theme: return "Tema"
         }
     }
     
@@ -22,6 +23,7 @@ enum TimerMode {
         case .work: return .green
         case .shortBreak: return .blue
         case .longBreak: return .orange
+        case .theme: return .purple
         }
     }
     
@@ -30,6 +32,7 @@ enum TimerMode {
         case .work: return "hammer.fill"
         case .shortBreak: return "cup.and.saucer.fill"
         case .longBreak: return "bed.double.fill"
+        case .theme: return "paintpalette"
         }
     }
     var gradient: LinearGradient {
@@ -40,6 +43,8 @@ enum TimerMode {
             return LinearGradient(colors: [.blue.opacity(0.6)], startPoint: .topLeading, endPoint: .bottomTrailing)
         case .longBreak:
             return LinearGradient(colors: [.orange.opacity(0.6)], startPoint: .topLeading, endPoint: .bottomTrailing)
+        case .theme:
+                return LinearGradient(colors: [.purple.opacity(0.6)], startPoint: .topLeading, endPoint: .bottomTrailing)
         }
     }
     var animatedIcon: String {
@@ -47,6 +52,7 @@ enum TimerMode {
         case .work: return "hammer.fill"
         case .shortBreak: return "cup.and.saucer.fill"
         case .longBreak: return "bed.double.fill"
+        case .theme: return "paintpalette.fill"
         }
     }
 }

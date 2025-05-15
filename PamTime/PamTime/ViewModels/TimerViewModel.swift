@@ -12,7 +12,13 @@ import SwiftUI
 import AVFoundation
 
 class TimerViewModel: ObservableObject {
-    @Published var selectedMinutes: Int
+    @Published var selectedMinutes: Int {
+        didSet {
+            if !isRunning && !isConfigured {
+                timeRemaining = selectedMinutes * 60
+            }
+        }
+    }
     @Published var timeRemaining: Int
     @Published var isRunning: Bool = false
     @Published var isConfigured: Bool = false
@@ -57,6 +63,7 @@ class TimerViewModel: ObservableObject {
             timer = nil
             isRunning = false
             playSound()
+            sendNotification()
             startFlashing()
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
@@ -131,6 +138,20 @@ class TimerViewModel: ObservableObject {
         alarmPlayed = true
         withAnimation(Animation.easeOut(duration: 0.5).repeatForever(autoreverses: true)) {
             flash = true
+        }
+    }
+    private func sendNotification() {
+        let content = UNMutableNotificationContent()
+        content.title = "Süre Doldu!"
+        content.body = "🎯 Pomodoro tamamlandı. Şimdi mola zamanı!"
+        content.sound = .default
+        
+        let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil)
+        
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error {
+                print("Notification Center Error: \(error.localizedDescription)")
+            }
         }
     }
 }

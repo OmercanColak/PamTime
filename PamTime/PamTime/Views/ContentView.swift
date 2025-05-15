@@ -36,6 +36,7 @@ struct ContentView: View {
                 .tabItem {
                     Label("Tema", systemImage: "paintpalette")
                 }
+                .tag(TimerMode.theme)
         }
         .preferredColorScheme(currentTheme.colorScheme)
     }

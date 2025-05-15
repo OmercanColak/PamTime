@@ -7,6 +7,8 @@
 import SwiftUI
 
 struct ThemeSettingsView: View {
+    @EnvironmentObject var tabRouter: TabRouter
+    
     @AppStorage("selectedTheme") private var selectedTheme: String = ThemeMode.system.rawValue
     var body: some View {
         NavigationView {
